@@ -1,0 +1,26 @@
+name: Fetch API and Save CSV
+on:
+  schedule:
+    - cron: '0 0 * * *' 
+  workflow_dispatch:    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   
+    steps:
+    - name: コードをチェックアウト
+      uses: actions/checkout@v4
+    - name: Pythonのセットアップ
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    - name: APIを実行してCSVを生成
+      run: python fetch_data.py
+    - name: CSVをリポジトリにコミットしてプッシュ
+      run: |
+        git config --local user.email "github-actions[bot]@://github.com"
+        git config --local user.name "github-actions[bot]"
+        git add api_data.csv
+        git diff-index --quiet HEAD || git commit -m "データ更新: $(date +'%Y-%m-%d %H:%M:%S')"
+        git push
